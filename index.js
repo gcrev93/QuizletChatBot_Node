@@ -1,5 +1,6 @@
 var restify = require('restify');
 var builder = require('botbuilder');
+var env = require('./env.js')
 
 
 //=========================================================
@@ -14,8 +15,8 @@ server.listen(process.env.port || process.env.PORT || 3978, function () {
   
 // Create chat bot
 var connector = new builder.ChatConnector({
-   appId: process.env.MICROSOFT_APP_ID,
-    appPassword: process.env.MICROSOFT_APP_PASSWORD
+    appId: process.env.APP_ID,
+    appPassword: process.env.APP_PASS
 });
 
 var bot = new builder.UniversalBot(connector);

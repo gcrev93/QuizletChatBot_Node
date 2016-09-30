@@ -35,51 +35,38 @@ bot.dialog('/', function(session){
 //=========================================================
 // Quizlet API
 //=========================================================
-
+var quiz = require('./api.js')
 var request = require('request');
 var username = 'gabrielle_crevecoeur';
 var table = new Object();
+var sets = "";
 // thinking arrays
 
-GetSets();
+(function () {
+    GetSets();   // I will invoke myself
+})();
+
+setTimeout(function () {
+    console.log("getting sets");
+    console.log(sets);
+}, 1000);
+
 
 function GetSets() {
-    request.get({
-        uri: 'https://api.quizlet.com/2.0/users/' + username + '/sets?client_id=X46hm4RZVz&whitespace=1',
-
-    },
-        function (error, response, body) {
-            if (error)
-                console.log(error);
-            else {
-                body = JSON.parse(body);
-                for (var x = 0; x < body.length; x++) {
-                    console.log(body[x].title);
-                    table[body[x].title] = body[x].id; //creating a hash table to store set names and IDs
-                }
-                GetTerms();
+    quiz.GetSets(function (err, res) {
+        if (err)
+            console.log(err);
+        else {
+            for (var x = 0; x < res.length; x++) {
+                sets = sets + res[x].title + ',';
+                table[res[x].title] = res[x].id; //creating a hash table to store set names and IDs
             }
-        });
 
+        }
+    })
 }
 
 
 function GetTerms() {
-        request.get({
-        uri: 'https://api.quizlet.com/2.0/sets/'+ table['Biology'] + '?client_id=X46hm4RZVz&whitespace=1',
-
-    },
-        function (error, response, body) {
-            if (error)
-                console.log(error);
-            else {
-                body = JSON.parse(body);
-                console.log(body);
-                /*for (var x = 0; x < body.length; x++) {
-                    console.log(body[x].title);
-                    table[body[x].title] = body[x].id;
-                }
-                console.log(table);*/
-            }
-        });
+       
 }

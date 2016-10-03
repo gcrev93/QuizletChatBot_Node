@@ -2,17 +2,12 @@
 // Quizlet API
 //=========================================================
 
-
 var request = require('request');
 var username = 'gabrielle_crevecoeur';
 var table = new Object();
 var sets = "";
 var terms = [];
 var def = [];
-
-// thinking arrays
-
-
 
 exports.GetSets = function (callback) {
     request.get({
@@ -38,9 +33,6 @@ exports.GetSets = function (callback) {
             }
         })
 }
-
-
-
 
 exports.GetTerms = function (key, callback) {
     request.get({

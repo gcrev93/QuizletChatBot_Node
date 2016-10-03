@@ -54,7 +54,7 @@ bot.dialog('/subject', new builder.IntentDialog()
         },
         function (session, results) {
             quiz.GetTerms(results.response);
-            session.send("Ok! let me know when you are ready! Send next for next card. Send flip for defintion. Press Exit when you are done")
+            session.send("Ok! Send 'ready' to start. Send 'flip' for defintion. Send 'next' for the next card. Press Exit when you are done")
             session.beginDialog('/study')
         }])
 );
@@ -71,6 +71,9 @@ bot.dialog('/study', new builder.IntentDialog()
     )
     .matches(/^next/i, [
         function (session){
-            session.send(Terms[++index])
+            if(++index == quiz.Terms.length )
+                session.send("You have no more flashcards in this set")
+            else
+                session.send(quiz.Terms[index])
         }])
 );

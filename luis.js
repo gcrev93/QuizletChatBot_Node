@@ -7,6 +7,8 @@
 var restify = require('restify');
 var builder = require('botbuilder');
 var env = require('./env.js')
+var quiz = require('./api.js');
+var index = 0;
 
 //=========================================================
 // Bot Setup

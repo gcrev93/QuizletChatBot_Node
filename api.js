@@ -2,18 +2,17 @@
 // Quizlet API
 //=========================================================
 
-
 var request = require('request');
 var table = new Object();
 var sets = "";
 var terms = [];
 var def = [];
 
-// thinking arrays
 
 
 
 exports.GetSets = function (user, callback) {
+
     request.get({
         uri: 'https://api.quizlet.com/2.0/users/' + user + '/sets?client_id=X46hm4RZVz&whitespace=1',
 
@@ -37,9 +36,6 @@ exports.GetSets = function (user, callback) {
             }
         })
 }
-
-
-
 
 exports.GetTerms = function (key, callback) {
     request.get({

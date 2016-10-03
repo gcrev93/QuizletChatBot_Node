@@ -1,15 +1,15 @@
 var restify = require('restify');
 var builder = require('botbuilder');
 var env = require('./env.js');
-var username = 'gabrielle_crevecoeur';
+var username; //gabrielle_crevecoeur
 var quiz = require('./api.js');
-var data;
 var index = 0;
 
 
 
 (function () {
-    quiz.GetSets();   // I will invoke myself
+    if (username)
+        quiz.GetSets(username);   // I will invoke myself
 })();
 
 //=========================================================
@@ -35,45 +35,68 @@ server.post('/api/messages', connector.listen());
 // Bots Dialogs
 //=========================================================
 
-bot.dialog('/', function (session) {
-   // setTimeout(function () {
+bot.dialog('/',
 
-        session.send("Welcome to the MHacks ChatBot. Would you like to study today?")
-        session.beginDialog('/subject')
+    function (session) {
+        session.send("Hello! Welcome to the Mhacks Quiz Bot. Would you like to study today?")
+        session.beginDialog('/user');
+    });
 
-  //  }, 3000)
-});
-
-
-bot.dialog('/subject', new builder.IntentDialog()
+bot.dialog('/user', new builder.IntentDialog()
     .matches(/^yes/i, [
         function (session) {
-            session.privateConversationData.sets = quiz.Sets;
-            builder.Prompts.text(session, "What session would you like today?" + session.privateConversationData.sets);
+        // setTimeout(function () {
+        if (username)
+            session.beginDialog('/subject')
+        else {
+            builder.Prompts.text(session, "What is your quizlet username?")
+        }
+        //  }, 3000)
+    },
+    function (session, results) {
+        quiz.GetSets(results.response);
+        session.beginDialog('/subject')
+    }])
+    .matches(/^no/i, function(session){
+        session.send("Ok see ya later!")
+        session.endConversation;
+    }));
 
+
+bot.dialog('/subject', [
+        function (session) {
+           setTimeout(function(){
+            builder.Prompts.text(session, "What study set would you like today?" + quiz.Sets);
+            }, 2000)
         },
         function (session, results) {
             quiz.GetTerms(results.response);
-            session.send("Ok! Send 'ready' to start. Send 'flip' for defintion. Send 'next' for the next card. Press Exit when you are done")
+            session.send("Ok! I got your flashcards! Send 'ready' to begin. Send 'flip' for definition. Send 'next' for the next card. Send 'exit' when you are done")
             session.beginDialog('/study')
-        }])
+        }]
 );
 
 bot.dialog('/study', new builder.IntentDialog()
     .matches(/^ready/i, [
         function (session) {
-           session.send(quiz.Terms[index])
+            session.send(quiz.Terms[index])
         }])
     .matches(/^flip/i, [
-        function(session){
+        function (session) {
             session.send(quiz.Def[index])
         }]
     )
     .matches(/^next/i, [
-        function (session){
-            if(++index == quiz.Terms.length )
-                session.send("You have no more flashcards in this set")
+        function (session) {
+            if (++index == quiz.Terms.length)
+                session.send("You are all our of cards! Hope you had fun studying! :)")
             else
                 session.send(quiz.Terms[index])
         }])
+     .matches(/^exit/i, [
+        function (session) {
+            session.send("Hope you had fun studying. See ya later :)")
+        }]
+    )
+
 );

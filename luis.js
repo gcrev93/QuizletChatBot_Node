@@ -45,7 +45,9 @@ bot.dialog('/', dialog);
 //=========================================================
 // Bots Dialogs With LUIS.AI !
 // TODO: Scoring functionality
-// TODO: Help intent for commands
+// TODO: API boolean check
+// TODO: Combine dialog.matches and bot.dialog
+// TODO: Allow user to change username
 //=========================================================
 
 // Greetings! Gather name from user so we can address them by name.
@@ -87,19 +89,31 @@ bot.dialog('/askName', [
 
 // Choose a topic so we can load the flashcards from API
 dialog.matches('PickTopic', [
-    bot.dialog('/PickTopic', [
-        function (session) {
-            setTimeout(function() {
-                builder.Prompts.text(session, "What study set would you like today?" + quiz.Sets);
-            }, 2000)
-        },
-        function (session, results) {
-            quiz.GetTerms(results.response);
-            session.send("Ok! I got your flashcards! Send 'ready' to begin. Send 'flip' for definition. Send 'next' for the next card. Send 'exit' when you are done");
-            session.privateConversationData.topic = results.response;
-            session.endDialogWithResult();
-        }
-    ])
+    function (session) {
+        setTimeout(function() {
+            builder.Prompts.text(session, "What study set would you like today?" + quiz.Sets);
+        }, 2000)
+    },
+    function (session, results) {
+        quiz.GetTerms(results.response);
+        session.send("Ok! I got your flashcards! Send 'ready' to begin. Send 'flip' for definition. Send 'next' for the next card. Send 'exit' when you are done");
+        session.privateConversationData.topic = results.response;
+        session.endDialogWithResult();
+    }
+]);
+
+bot.dialog('/PickTopic', [
+    function (session) {
+        setTimeout(function() {
+            builder.Prompts.text(session, "What study set would you like today?" + quiz.Sets);
+        }, 2000)
+    },
+    function (session, results) {
+        quiz.GetTerms(results.response);
+        session.send("Ok! I got your flashcards! Send 'ready' to begin. Send 'flip' for definition. Send 'next' for the next card. Send 'exit' when you are done");
+        session.privateConversationData.topic = results.response;
+        session.endDialogWithResult();
+    }
 ]);
 
 // Start the quiz --> display first flashcard
@@ -142,7 +156,6 @@ dialog.matches('ShowScore', builder.DialogAction.send('ShowScore'));
 
 // User wishes to leave the session -- Data will be cleared for new user
 dialog.matches('Exit', [
-    bot.dialog('/Exit', [
         function (session, results) {
             // end conversation.. clear privateConversationData stack
             if (username) {
@@ -151,7 +164,17 @@ dialog.matches('Exit', [
                 session.endConversation("Hope you had fun studying. See ya later :)");
             }
         }
-    ])
+]);
+
+bot.dialog('/Exit', [
+    function (session, results) {
+        // end conversation.. clear privateConversationData stack
+        if (username) {
+            session.endConversation("Hope you had fun studying. See ya later %s :)", username);
+        } else {
+            session.endConversation("Hope you had fun studying. See ya later :)");
+        }
+    }
 ]);
 
 // Waterfall fall through catch -- default messages

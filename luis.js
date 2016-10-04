@@ -8,7 +8,14 @@ var restify = require('restify');
 var builder = require('botbuilder');
 var env = require('./env.js')
 var quiz = require('./api.js');
-var index = 0;
+var index = 0;  // index for flashcard containers (terms + def)
+var username = "gabrielle_crevecoeur"; // login info for user
+
+
+(function () {
+    if (username)
+        quiz.GetSets(username);   // I will invoke myself
+})();
 
 //=========================================================
 // Bot Setup
@@ -44,69 +51,107 @@ bot.dialog('/', dialog);
 // Greetings! Gather name from user so we can address them by name.
 dialog.matches('Greeting', [
     function (session, args, next) {
-        if (!session.privateConversationData.name) {
-            session.beginDialog('/askName');
+        builder.Prompts.text(session, "Hello! Welcome to the Mhacks Quiz Bot. Would you like to study today?");
+    },
+    function (session, results, next) {
+        if ((results.response == "yes") || (results.response == "Yes")) {
+            // user wants to study
+            if (username) {
+                // user has username
+                next();
+            } else {
+                // user does NOT have username
+                session.beginDialog('/askName');
+            }
         } else {
-            next();
+            // user does not want to study
+            session.beginDialog('/Exit');
         }
     },
     function (session, results) {
-        session.send('Hello %s!', session.privateConversationData.name);
+        session.send('Hello %s!', username);
+        session.beginDialog('/PickTopic');
     }
 ]);
 // prompt the user for their name and store response -- Called from /Greeting
 bot.dialog('/askName', [
     function (session) {
-        
-        //builder.Prompts.text(session, 'Hello MHacks Hacker! What is your name?');
+        builder.Prompts.text(session, "What is your quizlet username?");
     },
     function (session, results) {
-        session.privateConversationData.name = results.response;
+        quiz.GetSets(username);
+        username = results.response;
         session.endDialogWithResult();
     }
 ]);
 
 // Choose a topic so we can load the flashcards from API
 dialog.matches('PickTopic', [
-    function (session) {
-        //session.send('%s, what topic would you like to study?', session.privateConversationData.name);
-        builder.Prompts.text(session, '\'American History\', \'Biology\' or \'Azure\'?');
-    },
-    function (session, results) {
-        session.privateConversationData.topic = results.response;
-        session.endDialogWithResult();
-    }
+    bot.dialog('/PickTopic', [
+        function (session) {
+            setTimeout(function() {
+                builder.Prompts.text(session, "What study set would you like today?" + quiz.Sets);
+            }, 2000)
+        },
+        function (session, results) {
+            quiz.GetTerms(results.response);
+            session.send("Ok! I got your flashcards! Send 'ready' to begin. Send 'flip' for definition. Send 'next' for the next card. Send 'exit' when you are done");
+            session.privateConversationData.topic = results.response;
+            session.endDialogWithResult();
+        }
+    ])
 ]);
 
 // Start the quiz --> display first flashcard
 dialog.matches('StartQuiz', [
     function (session, args, next) {
         if (!session.privateConversationData.topic) {
-            session.beginDialog('PickTopic');
+            session.beginDialog('/PickTopic');
         } else {
             next();
         }
     },
     function (session, results) {
-        session.send('Topic: %s', session.privateConversationData.topic);
+        session.send(quiz.Terms[index]);
+        session.endDialog();
     }
 ]);
 
 // Display the opposite side of the flashcard -- answer
-dialog.matches('FlipCard', builder.DialogAction.send('FlipCard'));
+dialog.matches('FlipCard', [
+    function(session) {
+        session.send(quiz.Def[index]);
+        session.endDialog();
+    }
+]);
 
 // Display the next flashcard
-dialog.matches('NextCard', builder.DialogAction.send('NextCard'));
+dialog.matches('NextCard', [
+    function(session) {
+        if(++index == quiz.Terms.length)
+            //all flashcards exhausted
+            session.send("You are all out of cards! Hope you had fun studying! :)");
+        else {
+            session.send(quiz.Terms[index])
+        }
+    }
+]);
 
 // TODO Score will be displayed "x out of y correct"
 dialog.matches('ShowScore', builder.DialogAction.send('ShowScore'));
 
 // User wishes to leave the session -- Data will be cleared for new user
 dialog.matches('Exit', [
-    function (session, results) {
-        // end conversation.. clear privateConversationData stack
-        session.endConversation('Okay.. See you soon %s.', session.privateConversationData.name);
-    }
+    bot.dialog('/Exit', [
+        function (session, results) {
+            // end conversation.. clear privateConversationData stack
+            if (username) {
+                session.endConversation("Hope you had fun studying. See ya later %s :)", username);
+            } else {
+                session.endConversation("Hope you had fun studying. See ya later :)");
+            }
+        }
+    ])
 ]);
 
 // Waterfall fall through catch -- default messages

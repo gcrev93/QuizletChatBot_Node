@@ -89,7 +89,7 @@ bot.dialog('/study', new builder.IntentDialog()
     .matches(/^next/i, [
         function (session) {
             if (++index == quiz.Terms.length)
-                session.send("You are all our of cards! Hope you had fun studying! :)")
+                session.send("You are all out of cards! Hope you had fun studying! :)")
             else
                 session.send(quiz.Terms[index])
         }])

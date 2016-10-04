@@ -57,7 +57,8 @@ dialog.matches('Greeting', [
 // prompt the user for their name and store response -- Called from /Greeting
 bot.dialog('/askName', [
     function (session) {
-        builder.Prompts.text(session, 'Hello MHacks Hacker! What is your name?');
+        
+        //builder.Prompts.text(session, 'Hello MHacks Hacker! What is your name?');
     },
     function (session, results) {
         session.privateConversationData.name = results.response;

@@ -3,15 +3,18 @@
 //=========================================================
 
 var request = require('request');
-var username = 'gabrielle_crevecoeur';
 var table = new Object();
 var sets = "";
 var terms = [];
 var def = [];
 
-exports.GetSets = function (callback) {
+
+
+
+exports.GetSets = function (user, callback) {
+
     request.get({
-        uri: 'https://api.quizlet.com/2.0/users/' + username + '/sets?client_id=X46hm4RZVz&whitespace=1',
+        uri: 'https://api.quizlet.com/2.0/users/' + user + '/sets?client_id=X46hm4RZVz&whitespace=1',
 
     },
         function (error, response, body) {

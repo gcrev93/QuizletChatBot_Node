@@ -8,9 +8,6 @@ var sets = "";
 var terms = [];
 var def = [];
 
-
-
-
 exports.GetSets = function (user, callback) {
 
     request.get({
@@ -33,26 +30,25 @@ exports.GetSets = function (user, callback) {
                 }
                 console.log('Got sets');
                 exports.Sets = sets;
-               /* setTimeout(function () {
-                    exports.Sets = sets;
-                    callback(null, sets);
-                }, 3000)*/
-                
+                /* setTimeout(function () {
+                     exports.Sets = sets;
+                     callback(null, sets);
+                 }, 3000)*/
+
             }
         })
 }
 
 exports.GetTerms = function (key, callback) {
     request.get({
-        uri: 'https://api.quizlet.com/2.0/sets/'+ table[key] + '?client_id=X46hm4RZVz&whitespace=1',
+        uri: 'https://api.quizlet.com/2.0/sets/' + table[key] + '?client_id=X46hm4RZVz&whitespace=1',
     },
         function (error, response, body) {
             if (error)
                 console.log(error);
             else {
                 body = JSON.parse(body);
-                for(var x = 0; x < body.terms.length; x++)
-                {
+                for (var x = 0; x < body.terms.length; x++) {
                     terms.push(body.terms[x].term)
                     def.push(body.terms[x].definition);
                 }

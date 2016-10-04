@@ -9,7 +9,7 @@ var builder = require('botbuilder');
 var env = require('./env.js')
 var quiz = require('./api.js');
 var index = 0;  // index for flashcard containers (terms + def)
-var username = "gabrielle_crevecoeur"; // login info for user
+var username; //= "gabrielle_crevecoeur"; // login info for user
 
 
 (function () {
@@ -24,7 +24,7 @@ var username = "gabrielle_crevecoeur"; // login info for user
 // Setup Restify Server
 var server = restify.createServer();
 server.listen(process.env.port || process.env.PORT || 3978, function () {
-   console.log('%s listening to %s', server.name, server.url); 
+   console.log('%s listening to %s', server.name, server.url);
 });
 
 // Create chat bot
@@ -45,9 +45,9 @@ bot.dialog('/', dialog);
 //=========================================================
 // Bots Dialogs With LUIS.AI !
 // TODO: Scoring functionality
-// TODO: API boolean check
-// TODO: Combine dialog.matches and bot.dialog
-// TODO: Allow user to change username
+// TODO: LUIS for YES and No
+// TODO: Comment code
+// TODO:  for session.privateConversationData.name
 //=========================================================
 
 // Greetings! Gather name from user so we can address them by name.
@@ -71,7 +71,6 @@ dialog.matches('Greeting', [
         }
     },
     function (session, results) {
-        session.send('Hello %s!', username);
         session.beginDialog('/PickTopic');
     }
 ]);
@@ -81,8 +80,8 @@ bot.dialog('/askName', [
         builder.Prompts.text(session, "What is your quizlet username?");
     },
     function (session, results) {
-        quiz.GetSets(username);
-        username = results.response;
+        session.privateConversationData.name = results.response;
+        quiz.GetSets(results.response);
         session.endDialogWithResult();
     }
 ]);
@@ -90,15 +89,7 @@ bot.dialog('/askName', [
 // Choose a topic so we can load the flashcards from API
 dialog.matches('PickTopic', [
     function (session) {
-        setTimeout(function() {
-            builder.Prompts.text(session, "What study set would you like today?" + quiz.Sets);
-        }, 2000)
-    },
-    function (session, results) {
-        quiz.GetTerms(results.response);
-        session.send("Ok! I got your flashcards! Send 'ready' to begin. Send 'flip' for definition. Send 'next' for the next card. Send 'exit' when you are done");
-        session.privateConversationData.topic = results.response;
-        session.endDialogWithResult();
+        session.beginDialog('/PickTopic');
     }
 ]);
 
@@ -111,7 +102,6 @@ bot.dialog('/PickTopic', [
     function (session, results) {
         quiz.GetTerms(results.response);
         session.send("Ok! I got your flashcards! Send 'ready' to begin. Send 'flip' for definition. Send 'next' for the next card. Send 'exit' when you are done");
-        session.privateConversationData.topic = results.response;
         session.endDialogWithResult();
     }
 ]);
@@ -156,13 +146,8 @@ dialog.matches('ShowScore', builder.DialogAction.send('ShowScore'));
 
 // User wishes to leave the session -- Data will be cleared for new user
 dialog.matches('Exit', [
-        function (session, results) {
-            // end conversation.. clear privateConversationData stack
-            if (username) {
-                session.endConversation("Hope you had fun studying. See ya later %s :)", username);
-            } else {
-                session.endConversation("Hope you had fun studying. See ya later :)");
-            }
+        function (session) {
+            session.beginDialog('/Exit');
         }
 ]);
 
@@ -170,7 +155,7 @@ bot.dialog('/Exit', [
     function (session, results) {
         // end conversation.. clear privateConversationData stack
         if (username) {
-            session.endConversation("Hope you had fun studying. See ya later %s :)", username);
+            session.endConversation("Hope you had fun studying. See ya later %s :)", session.privateConversationData.name);
         } else {
             session.endConversation("Hope you had fun studying. See ya later :)");
         }

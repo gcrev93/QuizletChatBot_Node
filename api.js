@@ -23,7 +23,12 @@ exports.GetSets = function (user, callback) {
             else {
                 body = JSON.parse(body);
                 for (var x = 0; x < body.length; x++) {
-                    sets = sets + body[x].title + ',';
+                    if ((x + 1) == body.length) {
+                        // last set
+                        sets = sets + body[x].title;
+                    } else {
+                        sets = sets + body[x].title + ', ';
+                    }
                     table[body[x].title] = body[x].id; //creating a hash table to store set names and IDs
                 }
                 console.log('Got sets');

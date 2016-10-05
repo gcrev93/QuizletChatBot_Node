@@ -1,5 +1,4 @@
 //=========================================================
-// gcrev93 @NoWaySheCodes
 // KSLHacks @KSLHacks
 // MHacksChatBot using Node JS with LUIS.ai integration
 //=========================================================
@@ -44,10 +43,6 @@ bot.dialog('/', dialog);
 
 //=========================================================
 // Bots Dialogs With LUIS.AI !
-// TODO: Scoring functionality
-// TODO: LUIS for YES and No
-// TODO: Comment code
-// TODO:  for session.privateConversationData.name
 //=========================================================
 
 // Greetings! Gather name from user so we can address them by name.
@@ -80,7 +75,9 @@ bot.dialog('/askName', [
         builder.Prompts.text(session, "What is your quizlet username?");
     },
     function (session, results) {
+        // store the username in the privateConversationData.name
         session.privateConversationData.name = results.response;
+        // call api to get sets with username
         quiz.GetSets(results.response);
         session.endDialogWithResult();
     }
@@ -100,6 +97,7 @@ bot.dialog('/PickTopic', [
         }, 2000)
     },
     function (session, results) {
+        // call api with selected set
         quiz.GetTerms(results.response);
         session.send("Ok! I got your flashcards! Send 'ready' to begin. Send 'flip' for definition. Send 'next' for the next card. Send 'exit' when you are done");
         session.endDialogWithResult();

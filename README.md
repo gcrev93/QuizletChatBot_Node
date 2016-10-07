@@ -48,6 +48,40 @@ First create a directory! In the working directory, you will need to set up the 
 3. Create an app.js file in your directory
 4. Create an another js file that will communicate with the quizlet API (in this repository, the file is called api.js)
 
+In your app.js file you will need the following required code just to properly set up your bot:
+
+        var restify = require('restify');
+        var builder = require('botbuilder');
+
+        //=========================================================
+        // Bot Setup
+        //=========================================================
+
+        // Setup Restify Server
+        var server = restify.createServer();
+        server.listen(process.env.port || process.env.PORT || 3978, function () {
+           console.log('%s listening to %s', server.name, server.url);
+        });
+
+        // Create chat bot
+        var connector = new builder.ChatConnector({
+           appId: <YOUR APP ID>,
+            appPassword: <YOUR APP PASSWORD>
+        });
+
+        var bot = new builder.UniversalBot(connector);
+        server.post('/api/messages', connector.listen());
+
+        //=========================================================
+        // Bots Dialogs
+        //=========================================================
+
+This is just the bare bones of the bot. Before we add any dialogs, lets be sure your api file is set up correctly.
+
+####
+
+
+
 
 
 

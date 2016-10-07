@@ -99,6 +99,7 @@ bot.dialog('/PickTopic', [
     function (session, results) {
         // call api with selected set
         quiz.GetTerms(results.response);
+        session.privateConversationData.topic = results.response;
         session.send("Ok! I got your flashcards! Send 'ready' to begin. Send 'flip' for definition. Send 'next' for the next card. Send 'exit' when you are done");
         session.endDialogWithResult();
     }
@@ -106,16 +107,13 @@ bot.dialog('/PickTopic', [
 
 // Start the quiz --> display first flashcard
 dialog.matches('StartQuiz', [
-    function (session, args, next) {
+    function (session) {
         if (!session.privateConversationData.topic) {
             session.beginDialog('/PickTopic');
         } else {
-            next();
+            session.send(quiz.Terms[index]);
+            session.endDialog();
         }
-    },
-    function (session, results) {
-        session.send(quiz.Terms[index]);
-        session.endDialog();
     }
 ]);
 

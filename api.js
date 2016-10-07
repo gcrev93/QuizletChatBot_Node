@@ -11,7 +11,7 @@ var def = [];
 exports.GetSets = function (user, callback) {
 
     request.get({
-        uri: 'https://api.quizlet.com/2.0/users/' + user + '/sets?client_id=X46hm4RZVz&whitespace=1',
+        uri: 'https://api.quizlet.com/2.0/users/' + user + '/sets?client_id=<ENTER CLIENT ID here>',
 
     },
         function (error, response, body) {
@@ -41,7 +41,7 @@ exports.GetSets = function (user, callback) {
 
 exports.GetTerms = function (key, callback) {
     request.get({
-        uri: 'https://api.quizlet.com/2.0/sets/' + table[key] + '?client_id=X46hm4RZVz&whitespace=1',
+        uri: 'https://api.quizlet.com/2.0/sets/' + table[key] + '?client_id=<ENTER CLIENT ID here>',
     },
         function (error, response, body) {
             if (error)

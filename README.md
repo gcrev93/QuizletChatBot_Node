@@ -21,5 +21,70 @@ After you have created your Azure account, it is time to create a web applicatio
 2. Select ‘New’
 3. Then ‘Web + mobile’
 4. And finally ‘Web App’
+5. Create a name for your App
+6. Choose your subscription
+7. Resource Group: choose Default
+8. App Service Plan: choose Default
+9. Click Create.
+
+Once your Web App is created and available in the 'All Resources' menu. Go to your Web Apps Overview section and find the url! Save that url somewhere because it will come in handy later.
+
+## Step 2: Register Your Bot
+After your web app has been created, you will need to register your bot on the bot framework site.
+
+1. Go to http://dev.framework.com/bots/new
+2. Give your bot a name, a bot handle (which will be used in the web link of the bot) and the description of your bot
+3. Next, you need to configure your Message Endpoint. This is the url you got from your Azure Web App. You need to be sure you use https at the beginning of the link and add /api/messages to the end of the link. i.e. https://mhackschatbotnode.azurewebsites.net/api/messages
+4. Then Generate your Microsoft App Id and Password by pressing the 'Create Microsoft App ID and password.'
+5. Your App ID will automatically populate and you need to save your App password somewhere separately, because it will be hidden, until you regenerate a new one.
+6. Lastly, you will need to add your APP ID and APP PASSWORD to your Azure settings. Go back to your web app overview, and in the task pnnel, go down to Application Settings.
+7.  Scroll down to the App settings section and fill in your APP ID ad APP PASSWORD. The Key column should state MICROSOFT_APP_ID and the value is the App ID you got from Bot registration. Same goes for the App password, except the Key is MICROSOFT_APP_PASSWORD and the value is the App Password you got from Bot registration.
+
+## Step 3: Get coding
+First create a directory! In the working directory, you will need to set up the projec as a node project and then download the proper node modules.
+
+1. Initialize the node project `npm init`
+2. Install proper node modules `npm install --save botbuilder` `npm install --save restify `
+3. Create an app.js file in your directory
+4. Create an another js file that will communicate with the quizlet API (in this repository, the file is called api.js)
+
+In your app.js file you will need the following required code just to properly set up your bot:
+
+        var restify = require('restify');
+        var builder = require('botbuilder');
+
+        //=========================================================
+        // Bot Setup
+        //=========================================================
+
+        // Setup Restify Server
+        var server = restify.createServer();
+        server.listen(process.env.port || process.env.PORT || 3978, function () {
+           console.log('%s listening to %s', server.name, server.url);
+        });
+
+        // Create chat bot
+        var connector = new builder.ChatConnector({
+           appId: <YOUR APP ID>,
+            appPassword: <YOUR APP PASSWORD>
+        });
+
+        var bot = new builder.UniversalBot(connector);
+        server.post('/api/messages', connector.listen());
+
+        //=========================================================
+        // Bots Dialogs
+        //=========================================================
+
+This is just the bare bones of the bot. Before we add any dialogs, lets be sure your api file is set up correctly.
+
+####
+
+
+
+
+
+
+
 
 

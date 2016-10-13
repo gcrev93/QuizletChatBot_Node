@@ -311,6 +311,6 @@ If you noticed, your web app has no code to know what exactly to run. First in y
  
  https://azure.microsoft.com/en-us/documentation/articles/app-service-continuous-deployment/
  
- ## Step 5: Testing Your Bot
+## Step 5: Testing Your Bot
  
 If you have a Windows Machine! You can test your bot on the Bot Emulator. You can install it here https://docs.botframework.com/en-us/tools/bot-framework-emulator/ ! You will need your APP ID and APP Password to enter it into the emulator and get to testing :)
